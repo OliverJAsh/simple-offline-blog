@@ -1,0 +1,11 @@
+{
+  "name": "simple-offline-blog",
+  "private": true,
+  "scripts": {
+    "start": "./node_modules/.bin/babel-node ."
+  },
+  "dependencies": {
+    "babel": "^5.8.23",
+    "express": "^4.13.3"
+  }
+}
