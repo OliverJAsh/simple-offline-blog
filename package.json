@@ -6,6 +6,21 @@
   },
   "dependencies": {
     "babel": "^5.8.23",
-    "express": "^4.13.3"
+    "express": "^4.13.3",
+    "jspm": "^0.16.2"
+  },
+  "jspm": {
+    "directories": {
+      "baseURL": "public/js"
+    },
+    "dependencies": {
+      "html-to-vdom": "npm:html-to-vdom@^0.7.0",
+      "virtual-dom": "npm:virtual-dom@^2.1.1"
+    },
+    "devDependencies": {
+      "babel": "npm:babel-core@^5.8.22",
+      "babel-runtime": "npm:babel-runtime@^5.8.20",
+      "core-js": "npm:core-js@^1.1.0"
+    }
   }
 }

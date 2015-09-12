@@ -9,6 +9,7 @@ A simple offline blog, using ServiceWorker.
 ```
 npm install
 npm start
+jspm install
 ```
 
 ## Architecture
