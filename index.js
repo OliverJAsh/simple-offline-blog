@@ -4,6 +4,9 @@ import express from 'express';
 
 const app = express();
 
+const oneYearMs = 60 * 60 * 24 * 365 * 1000;
+// jspm packages are cache busted by URL
+app.use('/js/jspm_packages', express.static(`${__dirname}/public/js/jspm_packages`, { maxAge: oneYearMs }));
 app.use('/', express.static(`${__dirname}/public`));
 
 //
