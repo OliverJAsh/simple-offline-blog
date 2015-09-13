@@ -22,36 +22,24 @@ const articleIdToArticleMap = ARTICLES.reduce((accumulator, content) => {
     return accumulator;
 }, {});
 
-const articleTemplate = (article) =>
-    `<h2><a href="/articles/${article.id}">${article.title}</a></h2>` +
-    `<p>${article.date.toDateString()}</p>` +
-    article.body;
-
-const articlesTemplate = (articles) => {
-    const articleLiElements = articles
-        // Sort by date descending
-        .sort((articleA, articleB) => articleA.date < articleB.date)
-        .map(articleTemplate)
-        .map(x => `<li>${x}</li>`)
-        .join('');
-    return `<ul>${articleLiElements}</ul>`;
-};
-
 //
 // Serve HTML fragments of content
 //
-app.get('/content/articles', (req, res) => res.send(articlesTemplate(ARTICLES)));
+app.get('/content/articles', (req, res) =>
+    // Sort by date descending
+    res.send(ARTICLES.sort((articleA, articleB) => articleA.date < articleB.date)));
+
 app.get('/content/articles/:articleId', (req, res) => {
     const article = articleIdToArticleMap[req.params.articleId];
     if (article) {
-        res.send(articleTemplate(article));
+        res.send(article);
     } else {
         res.sendStatus(404);
     }
 });
 
 const server = app.listen(8080, () => {
-    const { address, port } = server.address();
+    const { port } = server.address();
 
     console.log(`Server running on port ${port}`);
 });

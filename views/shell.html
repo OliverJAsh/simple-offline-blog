@@ -35,10 +35,6 @@
                     contentElement.appendChild(fragment);
                 };
 
-                var toArray = function (nodeList) {
-                    return Array.prototype.slice.call(nodeList);
-                };
-
                 // Stale-while-revalidate
 
                 // Load patterns:
@@ -65,10 +61,6 @@
                                 ? { type: 'cache', response: response }
                                 : fetchFromNetwork(url);
                         });
-                };
-
-                var responseToFragment = function (response) {
-                    return response.clone().text().then(fragmentFromString);
                 };
 
                 var getResponses = function (url) {
@@ -101,8 +93,13 @@
                     return cacheOrElseNetworkPromise
                         .then(function (wrappedResponse) {
                             console.log('Render: from ' + wrappedResponse.type);
-                            var fragment = responseToFragment(wrappedResponse.response);
-                            return (wrappedResponse.response.ok ? fragment.then(options.transformerFn) : fragment)
+                            var newTreePromise = (wrappedResponse.response.ok
+                                ? wrappedResponse.response.clone().json()
+                                    .then(options.render)
+                                : wrappedResponse.response.clone().text()
+                                    .then(text => fragmentFromString('<p>' + text + '</p>')));
+
+                            return newTreePromise
                                 .then(updateContent)
                                 .then(function () {
                                     if (options.shouldCache && wrappedResponse.type === 'network') {
@@ -119,8 +116,8 @@
                             return cacheThenNetworkPromise.then(function (wrappedResponse) {
                                 if (wrappedResponse && wrappedResponse.response.ok) {
                                     console.log('Render: from ' + wrappedResponse.type);
-                                    return responseToFragment(wrappedResponse.response)
-                                        .then(options.transformerFn)
+                                    return wrappedResponse.response.clone().json()
+                                        .then(options.render)
                                         .then(updateContent)
                                         .then(function () {
                                             console.log('Cache: update');
@@ -133,76 +130,70 @@
                         });
                 };
 
+                var renderHomePage = function (articles) {
+                    return Promise.all(articles.map(function (article) {
+                        return isContentCached('articles/' + article.id).then(function (isCached) {
+                            return (
+                                '<li>' +
+                                    '<h2><a href="/articles/' + article.id + '">' + article.title + '</a></h2>' +
+                                    (isCached ? '<p><strong>Available offline</strong></p>' : '') +
+                                    '<p>' + new Date(article.date).toDateString() + '</p>' +
+                                    article.body +
+                                '</li>'
+                            );
+                        });
+                    })).then(function (articleLiNodes) {
+                        return fragmentFromString('<ul>' + articleLiNodes.join('') + '</ul>');
+                    });
+                };
+
+                var renderArticlePage = function (article) {
+                    var contentId = 'articles/' + article.id;
+                    return isContentCached(contentId).then(function (isCached) {
+                        var fragment = fragmentFromString(
+                            '<label><input type="checkbox" ' + (isCached ? 'checked' : '') + '> Read offline</label>' +
+                            '<h2><a href="/articles/' + article.id + '">' + article.title + '</a></h2>' +
+                            '<p>' + new Date(article.date).toDateString() + '</p>' +
+                            article.body
+                        );
+
+                        var cacheCheckboxElement = fragment.querySelector('input');
+                        cacheCheckboxElement.addEventListener('change', function (event) {
+                            return caches.open('content').then(function (cache) {
+                                var shouldCache = event.target.checked;
+                                var contentUrl = getContentUrl(contentId);
+                                if (shouldCache) {
+                                    return cache.add(contentUrl).catch(function () {
+                                        event.target.checked = false;
+                                    });
+                                } else if (isCached) {
+                                    cache.delete(contentUrl);
+                                }
+                            });
+                        });
+
+                        return fragment;
+                    });
+                };
+
                 //
                 // Routing
                 //
-
-                var insertBefore = function (sourceNode, targetNode) {
-                    sourceNode.parentNode.insertBefore(targetNode, sourceNode);
-                };
 
                 var homeRegExp = /^\/$/;
                 var articleRegExp = /^\/articles\/(.*)$/;
                 if (homeRegExp.test(location.pathname)) {
                     var contentId = 'articles';
 
-                    var addOfflineNotes = function (fragment) {
-                        // Warning: mutation
-                        return Promise.all(toArray(fragment.querySelectorAll('li')).map(function (liElement) {
-                            var thisContentId = new URL(liElement.querySelector('a').href).pathname.replace(/^\//, '');
-                            return isContentCached(thisContentId).then(function (isCached) {
-                                if (isCached) {
-                                    var offlineNoteFragment = fragmentFromString('<p><strong>Available offline</strong></p>');
-                                    insertBefore(liElement.querySelector('p'), offlineNoteFragment);
-                                }
-                            });
-                        })).then(function () {
-                            return fragment;
-                        });
-                    };
-
                     handlePageState(contentId, {
                         shouldCache: true,
-                        transformerFn: addOfflineNotes
+                        render: renderHomePage
                     });
                 }
                 else if (articleRegExp.test(location.pathname)) {
                     var contentId = 'articles/' + location.pathname.match(articleRegExp)[1];
 
-                    var prepend = function (sourceNode, targetNode) {
-                        sourceNode.insertBefore(targetNode, sourceNode.firstChild);
-                    };
-
-                    var addOfflineCheckbox = function (fragment) {
-                        // Warning: mutation
-                        var cacheCheckboxFragment =
-                            fragmentFromString('<label><input type="checkbox"> Read offline</label>');
-                        prepend(fragment, cacheCheckboxFragment);
-
-                        var cacheCheckboxElement = fragment.querySelector('input');
-                        var url = getContentUrl(contentId);
-
-                        return isContentCached(contentId)
-                            .then(function (isCached) {
-                                cacheCheckboxElement.checked = isCached;
-
-                                cacheCheckboxElement.addEventListener('change', function (event) {
-                                    return caches.open('content').then(function (cache) {
-                                        var shouldCache = event.target.checked;
-                                        if (shouldCache) {
-                                            return cache.add(url).catch(function () {
-                                                event.target.checked = false;
-                                            });
-                                        } else if (isCached) {
-                                            cache.delete(url);
-                                        }
-                                    });
-                                });
-                            })
-                            .then(function () { return fragment; });
-                    };
-
-                    handlePageState(contentId, { transformerFn: addOfflineCheckbox });
+                    handlePageState(contentId, { render: renderArticlePage });
                 }
             });
 
