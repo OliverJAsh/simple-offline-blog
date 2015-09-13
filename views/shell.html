@@ -29,10 +29,11 @@
                     });
                 };
 
-                var updateContent = function (fragment) {
+                var updateContent = function (options) {
+                    console.log('Render: from ' + options.source);
                     var contentElement = document.querySelector('#js-content');
                     contentElement.innerHTML = '';
-                    contentElement.appendChild(fragment);
+                    contentElement.appendChild(options.fragment);
                 };
 
                 // Stale-while-revalidate
@@ -48,86 +49,63 @@
                 // - Cache
                 // - Cache then update
 
-                var fetchFromNetwork = function (url) {
-                    return fetch(url).then(function (response) {
-                        return { type: 'network', response: response };
-                    });
-                };
-
-                var fetchFromCacheOrElseNetwork = function (url) {
-                    return caches.match(url)
-                        .then(function (response) {
-                            return response
-                                ? { type: 'cache', response: response }
-                                : fetchFromNetwork(url);
-                        });
-                };
-
-                var getResponses = function (url) {
-                    // Cache or else network
-                    var cacheOrElseNetworkPromise = fetchFromCacheOrElseNetwork(url);
-                    // If first try was from cache, now try the network
-                    var cacheThenNetworkPromise = cacheOrElseNetworkPromise.then(function (firstTry) {
-                        if (firstTry.type === 'cache') {
-                            return fetchFromNetwork(url);
-                        }
-                    });
-
-                    return [
-                        cacheOrElseNetworkPromise,
-                        cacheThenNetworkPromise
-                    ];
-                };
-
                 // Serve from cache or else network. When serving from cache,
                 // fetch the newest content from the network to update the
                 // content on screen and then revalidate the cache.
                 // This function has side effects.
                 var handlePageState = function (contentId, options) {
                     var url = getContentUrl(contentId);
-                    var responses = getResponses(url);
+                    var networkPromise = fetch(url);
+                    var cachePromise = caches.match(url);
 
-                    var cacheOrElseNetworkPromise = responses[0];
-                    var cacheThenNetworkPromise = responses[1];
+                    if (options.shouldCache) {
+                        console.log('Cache: update');
+                        networkPromise.then(function (networkResponse) {
+                            return caches.open('content')
+                                .then(function (cache) { return cache.put(url, networkResponse.clone()); });
+                        });
+                    }
 
-                    return cacheOrElseNetworkPromise
-                        .then(function (wrappedResponse) {
-                            console.log('Render: from ' + wrappedResponse.type);
-                            var newTreePromise = (wrappedResponse.response.ok
-                                ? wrappedResponse.response.clone().json()
-                                    .then(options.render)
-                                : wrappedResponse.response.clone().text()
-                                    .then(text => fragmentFromString('<p>' + text + '</p>')));
-
-                            return newTreePromise
-                                .then(updateContent)
-                                .then(function () {
-                                    if (options.shouldCache && wrappedResponse.type === 'network') {
-                                        console.log('Cache: first time');
-                                        return caches.open('content').then(function (cache) {
-                                            return cache.put(url, wrappedResponse.response);
-                                        });
-                                    }
-                                });
-                        }, function (error) {
-                            return updateContent(fragmentFromString('<p>' + error.message + '</p>'));
-                        })
-                        .then(function () {
-                            return cacheThenNetworkPromise.then(function (wrappedResponse) {
-                                if (wrappedResponse && wrappedResponse.response.ok) {
-                                    console.log('Render: from ' + wrappedResponse.type);
-                                    return wrappedResponse.response.clone().json()
+                    // Cache or else network
+                    var initialRender = function () {
+                        return cachePromise
+                            .then(function (cacheResponse) {
+                                if (cacheResponse) {
+                                    return cacheResponse.clone().json()
                                         .then(options.render)
-                                        .then(updateContent)
-                                        .then(function () {
-                                            console.log('Cache: update');
-                                            return caches.open('content').then(function (cache) {
-                                                return cache.put(url, wrappedResponse.response);
-                                            });
-                                        });
+                                        .then(function (fragment) { return { source: 'cache', fragment: fragment }; });
+                                } else {
+                                    return networkPromise
+                                        .then(function (networkResponse) {
+                                            if (networkResponse.ok) {
+                                                return networkResponse.clone().json().then(options.render);
+                                            } else {
+                                                return networkResponse.clone().text()
+                                                    .then(function (text) { return fragmentFromString('<p>' + text + '</p>'); });
+                                            }
+                                        }, function (error) { return fragmentFromString('<p>' + error.message + '</p>'); })
+                                        .then(function (fragment) { return { source: 'network', fragment: fragment }; });
+                                }
+                            })
+                            .then(updateContent);
+                    };
+
+                    // If previously served from cache, update the content on screen from the
+                    // network (if response was OK)
+                    var conditionalNetworkRender = function () {
+                        return cachePromise.then(function (cacheResponse) {
+                            networkPromise.then(function (networkResponse) {
+                                if (cacheResponse && networkResponse.ok) {
+                                    return networkResponse.clone().json()
+                                        .then(options.render)
+                                        .then(function (fragment) { return { source: 'network', fragment: fragment }; })
+                                        .then(updateContent);
                                 }
                             });
                         });
+                    };
+
+                    return initialRender().then(conditionalNetworkRender);
                 };
 
                 var renderHomePage = function (articles) {
@@ -193,7 +171,12 @@
                 else if (articleRegExp.test(location.pathname)) {
                     var contentId = 'articles/' + location.pathname.match(articleRegExp)[1];
 
-                    handlePageState(contentId, { render: renderArticlePage });
+                    isContentCached(contentId).then(function (isCached) {
+                        handlePageState(contentId, {
+                            shouldCache: isCached,
+                            render: renderArticlePage
+                        });
+                    });
                 }
             });
 
