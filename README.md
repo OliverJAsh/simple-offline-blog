@@ -1,5 +1,7 @@
 # Simple offline blog
 
+A simple offline blog, using ServiceWorker.
+
 ![Demo](demo.gif)
 
 ## Installation
