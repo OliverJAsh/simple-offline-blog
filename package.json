@@ -16,7 +16,7 @@
   },
   "jspm": {
     "directories": {
-      "baseURL": "public/js"
+      "baseURL": "public-src/js"
     },
     "dependencies": {
       "vdom-virtualize": "npm:vdom-virtualize@^0.0.13",

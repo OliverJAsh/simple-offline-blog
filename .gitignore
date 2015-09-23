@@ -1,4 +1,4 @@
 node_modules/
-public/js/jspm_packages/
 public/js/main-bundle.js
 public/js/main-bundle.js.map
+public-src/js/jspm_packages/
