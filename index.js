@@ -22,10 +22,6 @@ const app = express();
 
 app.use(compression());
 
-const oneYearMs = 60 * 60 * 24 * 365 * 1000;
-// jspm packages are cache busted by URL
-app.use('/js/jspm_packages', express.static(`${__dirname}/public/js/jspm_packages`, { maxAge: oneYearMs }));
-app.use('/shared', express.static(`${__dirname}/shared`));
 app.use('/', express.static(`${__dirname}/public`));
 
 const sortArticlesByDateDesc = a => a.sort((articleA, articleB) => articleA.date < articleB.date);

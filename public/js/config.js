@@ -9,6 +9,8 @@ System.config({
     ]
   },
   paths: {
+    // Relative to root
+    "shared/*": "./shared/*",
     "github:*": "jspm_packages/github/*",
     "npm:*": "jspm_packages/npm/*"
   },
