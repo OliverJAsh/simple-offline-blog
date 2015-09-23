@@ -14,8 +14,14 @@ npm run bundle-js
 ```
 
 ## Architecture
-* Server serves a shell. That is, a wrapper for the content.
-* Shell contains logic for fetching and rendering content
+* To begin with, the server renders. A service worker is installed after the
+  first render.
+* Subsequent requests will be proxied by the service worker, which will serve a
+  cached shell for all pages (a wrapper for the content). The shell contains
+  logic for fetching and rendering content.
+
+Note that this means browsers without service worker support will just continue
+to use server side rendering.
 
 ## Fetch and cache rules
 * Serve from cache or else network. When serving from cache, fetch the newest
