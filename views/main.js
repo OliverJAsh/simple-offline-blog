@@ -7,7 +7,7 @@ export default ({ body }={}) => (
                 <title>Blog</title>
                 <meta name='viewport' content='width=device-width' />
 
-                <script async src='/js/main-bundle.js'></script>
+                <script defer src='/js/main-bundle.js'></script>
             </head>
             <body>
                 <h1><a href='/'>Blog</a></h1>
