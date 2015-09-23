@@ -1,36 +1,58 @@
 /* eslint-env node */
 
 import express from 'express';
+import compression from 'compression';
+import treeToHTML from 'vdom-to-html';
 
-const app = express();
+import homeView from './views/home';
+import articleView from './views/article';
+import shellView from './views/shell';
 
-const oneYearMs = 60 * 60 * 24 * 365 * 1000;
-// jspm packages are cache busted by URL
-app.use('/js/jspm_packages', express.static(`${__dirname}/public/js/jspm_packages`, { maxAge: oneYearMs }));
-app.use('/', express.static(`${__dirname}/public`));
-
-//
-// Serve shell for / and /articles/:articleId
-//
-const homeOrArticlePageRegExp = new RegExp('^/(articles/.+)?$');
-app.get(homeOrArticlePageRegExp, (req, res) => res.sendFile(`${__dirname}/views/shell.html`));
-
-const ARTICLES = [
+const articles = [
     { id: 'my-first-article', title: 'My First Article', body: '<p>Hello, World!</p>', date: new Date(2015, 0, 1) },
     { id: 'my-second-article', title: 'My Second Article', body: '<p>Goodbye, World!</p>', date: new Date(2015, 0, 2) }
 ];
 
-const articleIdToArticleMap = ARTICLES.reduce((accumulator, content) => {
+const articleIdToArticleMap = articles.reduce((accumulator, content) => {
     accumulator[content.id] = content;
     return accumulator;
 }, {});
 
+const app = express();
+
+app.use(compression());
+
+const oneYearMs = 60 * 60 * 24 * 365 * 1000;
+// jspm packages are cache busted by URL
+app.use('/js/jspm_packages', express.static(`${__dirname}/public/js/jspm_packages`, { maxAge: oneYearMs }));
+app.use('/shared', express.static(`${__dirname}/shared`));
+app.use('/', express.static(`${__dirname}/public`));
+
+const sortArticlesByDateDesc = a => a.sort((articleA, articleB) => articleA.date < articleB.date);
+
+app.get('/', (req, res) => homeView(sortArticlesByDateDesc(articles)).then(node => (
+    res.send(treeToHTML(node))
+)));
+
+app.get('/articles/:articleId', (req, res) => {
+    const article = articleIdToArticleMap[req.params.articleId];
+    if (article) {
+        articleView(article).then(node => (
+            res.send(treeToHTML(node))
+        ));
+    } else {
+        res.sendStatus(404);
+    }
+});
+
+app.get('/shell', (req, res) => shellView().then(node => res.send(treeToHTML(node))));
+
 //
 // Serve HTML fragments of content
 //
-app.get('/content/articles', (req, res) =>
-    // Sort by date descending
-    res.send(ARTICLES.sort((articleA, articleB) => articleA.date < articleB.date)));
+app.get('/content/articles', (req, res) => (
+    res.send(sortArticlesByDateDesc(articles))
+));
 
 app.get('/content/articles/:articleId', (req, res) => {
     const article = articleIdToArticleMap[req.params.articleId];

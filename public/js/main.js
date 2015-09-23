@@ -1,32 +1,38 @@
 /* eslint-env browser */
 
 import h from 'virtual-dom/h';
+// Until SystemJS supports babel plugins, we have to stub React, because that's
+// what Babel compiles to
+// https://github.com/systemjs/systemjs/issues/779
+window.React = { createElement: (name, attrs, ...children) => h(name, attrs, children) };
 import diff from 'virtual-dom/diff';
 import patch from 'virtual-dom/patch';
-import VNode from 'virtual-dom/vnode/vnode';
-import VText from 'virtual-dom/vnode/vtext';
 import createElement from 'virtual-dom/create-element';
-import createVirtualizeFn from 'html-to-vdom';
+import domToVdom from 'vdom-virtualize';
 
-const virtualize = createVirtualizeFn({ VNode, VText });
+import articlesFragment from 'shared/fragments/articles';
+import articleFragment from 'shared/fragments/article';
+
+import { isContentCached, getContentUrl } from 'shared/helpers';
 
 navigator.serviceWorker.register('/service-worker.js')
     .then(() => {
         console.log('Service worker registered');
     });
 
-const getContentUrl = (contentId) => '/content/' + contentId;
-
-const isContentCached = (contentId) =>
-    caches.open('content').then((cache) =>
-        cache.match(getContentUrl(contentId))
-            .then(response => !! response)
-    );
-
-let currentTree = h('div');
-let rootNode = createElement(currentTree);
 const contentNode = document.querySelector('#js-content');
-contentNode.appendChild(rootNode);
+
+let rootNode;
+let currentTree;
+const hasServerRender = !! contentNode.firstElementChild;
+if (hasServerRender) {
+    rootNode = contentNode.firstElementChild;
+    currentTree = domToVdom(rootNode);
+} else {
+    currentTree = <div>Loading…</div>;
+    rootNode = createElement(currentTree);
+    contentNode.appendChild(rootNode);
+}
 
 const updateContent = ({ source, tree: newTree }) => {
     console.log(`Render: from ${source}`);
@@ -76,11 +82,12 @@ const handlePageState = (contentId, { shouldCache, render }) => {
                     return networkPromise
                         .then(networkResponse => {
                             if (networkResponse.ok) {
-                                return networkResponse.clone().json().then(render);
+                                return networkResponse.clone().json()
+                                    .then(render);
                             } else {
-                                return networkResponse.clone().text().then(text => h('p', text));
+                                return networkResponse.clone().text().then(text => <p>{text}</p>);
                             }
-                        }, error => h('p', error.message))
+                        }, error => <p>{error.message}</p>)
                         .then(tree => ({ source: 'network', tree }));
                 }
             })
@@ -105,51 +112,6 @@ const handlePageState = (contentId, { shouldCache, render }) => {
     return initialRender().then(conditionalNetworkRender);
 };
 
-const renderArticlePage = (article) => {
-    const contentId = `articles/${article.id}`;
-    return isContentCached(contentId).then(isCached =>
-        h('div', [
-            h('label', [
-                h('input', { type: 'checkbox', checked: isCached, onchange: () =>
-                    caches.open('content').then((cache) => {
-                        const shouldCache = event.target.checked;
-                        if (shouldCache) {
-                            return cache.add(getContentUrl(contentId)).catch(() =>
-                                event.target.checked = false
-                            );
-                        } else if (isCached) {
-                            cache.delete(getContentUrl(contentId));
-                        }
-                    })
-                }),
-                ' Read offline'
-            ]),
-            h('article', [
-                h('h2', h('a', { href: `/articles/${article.id}` }, article.title)),
-                h('p', new Date(article.date).toDateString()),
-                virtualize(article.body)
-            ])
-        ])
-    );
-};
-
-const renderHomePage = (articles) =>
-    Promise.all(
-        articles.map(
-            article => isContentCached(`articles/${article.id}`)
-                .then(isCached =>
-                    h('li', [
-                        h('h2', h('a', { href: `/articles/${article.id}` }, article.title)),
-                        isCached ? h('p', h('strong', 'Available offline')) : undefined,
-                        h('p', new Date(article.date).toDateString()),
-                        virtualize(article.body)
-                    ])
-                )
-        )
-    ).then(articleNodes =>
-        h('ul', articleNodes)
-    );
-
 //
 // Routing
 //
@@ -161,7 +123,7 @@ if (homeRegExp.test(location.pathname)) {
 
     handlePageState(contentId, {
         shouldCache: true,
-        render: renderHomePage
+        render: articlesFragment
     });
 }
 else if (articleRegExp.test(location.pathname)) {
@@ -170,7 +132,7 @@ else if (articleRegExp.test(location.pathname)) {
     isContentCached(contentId).then(isCached =>
         handlePageState(contentId, {
             shouldCache: isCached,
-            render: renderArticlePage
+            render: articleFragment
         })
     );
 }

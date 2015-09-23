@@ -2,19 +2,24 @@
   "name": "simple-offline-blog",
   "private": true,
   "scripts": {
-    "start": "./node_modules/.bin/babel-node ."
+    "start": "./node_modules/.bin/babel-node .",
+    "bundle-js": "node bundle"
   },
   "dependencies": {
     "babel": "^5.8.23",
+    "babel-plugin-jsx-factory": "^1.0.1",
+    "compression": "^1.5.2",
     "express": "^4.13.3",
-    "jspm": "^0.16.2"
+    "jspm": "^0.16.2",
+    "vdom-to-html": "^2.1.1",
+    "virtual-dom": "^2.1.1"
   },
   "jspm": {
     "directories": {
       "baseURL": "public/js"
     },
     "dependencies": {
-      "html-to-vdom": "npm:html-to-vdom@^0.7.0",
+      "vdom-virtualize": "npm:vdom-virtualize@^0.0.13",
       "virtual-dom": "npm:virtual-dom@^2.1.1"
     },
     "devDependencies": {

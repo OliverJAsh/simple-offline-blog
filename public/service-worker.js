@@ -4,7 +4,10 @@ self.addEventListener('install', function (event) {
     // Cache the shell
     event.waitUntil(
         caches.open('static').then(function (cache) {
-            return cache.add('/');
+            return cache.addAll([
+                '/shell',
+                '/js/main-bundle.js'
+            ]);
         })
     );
 });
@@ -32,10 +35,14 @@ self.addEventListener('fetch', function (event) {
     if (shouldServeShell) {
         event.respondWith(
             caches.open('static').then(function (cache) {
-                return getStaleWhileRevalidate('/', cache);
+                return getStaleWhileRevalidate('/shell', cache);
             })
         );
     } else {
-        event.respondWith(fetch(event.request));
+        event.respondWith(
+            caches.match(event.request).then(function (response) {
+                return response || fetch(event.request);
+            })
+        );
     }
 });
