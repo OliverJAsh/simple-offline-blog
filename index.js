@@ -6,7 +6,7 @@ import treeToHTML from 'vdom-to-html';
 
 import homeView from './views/home';
 import articleView from './views/article';
-import shellView from './views/shell';
+import mainView from './views/main';
 
 const articles = [
     { id: 'my-first-article', title: 'My First Article', body: '<p>Hello, World!</p>', date: new Date(2015, 0, 1) },
@@ -41,7 +41,7 @@ app.get('/articles/:articleId', (req, res) => {
     }
 });
 
-app.get('/shell', (req, res) => shellView().then(node => res.send(treeToHTML(node))));
+app.get('/shell', (req, res) => mainView().then(node => res.send(treeToHTML(node))));
 
 //
 // Serve HTML fragments of content
