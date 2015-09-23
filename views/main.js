@@ -6,7 +6,6 @@ export default ({ body }={}) => (
             <head>
                 <title>Blog</title>
                 <meta name='viewport' content='width=device-width' />
-
                 <script defer src='/js/main-bundle.js'></script>
             </head>
             <body>
