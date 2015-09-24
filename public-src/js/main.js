@@ -59,17 +59,10 @@ const updateContent = ({ source, tree: newTree }) => {
 // fetch the newest content from the network to update the
 // content on screen and then revalidate the cache.
 // This function has side effects.
-const handlePageState = (contentId, { shouldCache, render }) => {
+const handlePageState = (contentId, { shouldCache, renderTemplate }) => {
     const url = getContentUrl(contentId);
     const networkPromise = fetch(url);
     const cachePromise = caches.match(url);
-
-    if (shouldCache) {
-        console.log('Cache: update');
-        networkPromise.then(networkResponse =>
-            caches.open('content').then(cache => cache.put(url, networkResponse.clone()))
-        );
-    }
 
     // Cache or else network
     const initialRender = () => (
@@ -77,14 +70,14 @@ const handlePageState = (contentId, { shouldCache, render }) => {
             .then(cacheResponse => {
                 if (cacheResponse) {
                     return cacheResponse.clone().json()
-                        .then(render)
+                        .then(renderTemplate)
                         .then(tree => ({ source: 'cache', tree }));
                 } else {
                     return networkPromise
                         .then(networkResponse => {
                             if (networkResponse.ok) {
                                 return networkResponse.clone().json()
-                                    .then(render);
+                                    .then(renderTemplate);
                             } else {
                                 return networkResponse.clone().text().then(text => <p>{text}</p>);
                             }
@@ -102,7 +95,7 @@ const handlePageState = (contentId, { shouldCache, render }) => {
             networkPromise.then(networkResponse => {
                 if (cacheResponse && networkResponse.ok) {
                     return networkResponse.clone().json()
-                        .then(render)
+                        .then(renderTemplate)
                         .then(tree => ({ source: 'network', tree }))
                         .then(updateContent);
                 }
@@ -110,17 +103,26 @@ const handlePageState = (contentId, { shouldCache, render }) => {
         )
     );
 
-    const enhance = () => (
-        render(JSON.parse(document.querySelector('#template-data').text)).then(tree => (
-            updateContent({ source: 'template-data', tree })
-        ))
-    );
+    const renders = () => {
+        if (hasServerRender) {
+            // Re-render to enhance
+            const templateData = JSON.parse(document.querySelector('#template-data').text);
+            return renderTemplate(templateData).then(tree => updateContent({ source: 'template-data', tree }));
+        } else {
+            return initialRender().then(conditionalNetworkRender);
+        }
+    };
 
-    if (hasServerRender) {
-        enhance();
-    } else {
-        initialRender().then(conditionalNetworkRender);
-    }
+    renders().then(() => {
+        if (shouldCache) {
+            networkPromise.then(networkResponse => {
+                if (networkResponse.ok) {
+                    console.log('Cache: update');
+                    return caches.open('content').then(cache => cache.put(url, networkResponse.clone()));
+                }
+            });
+        }
+    });
 };
 
 //
@@ -134,7 +136,7 @@ if (homeRegExp.test(location.pathname)) {
 
     handlePageState(contentId, {
         shouldCache: true,
-        render: articlesFragment
+        renderTemplate: articlesFragment
     });
 }
 else if (articleRegExp.test(location.pathname)) {
@@ -143,7 +145,7 @@ else if (articleRegExp.test(location.pathname)) {
     isContentCached(contentId).then(isCached =>
         handlePageState(contentId, {
             shouldCache: isCached,
-            render: articleFragment
+            renderTemplate: articleFragment
         })
     );
 }
