@@ -22,9 +22,10 @@ navigator.serviceWorker.register('/service-worker.js')
 
 const contentNode = document.querySelector('#js-content');
 
+const hasServerRender = !! contentNode.firstElementChild;
+
 let rootNode;
 let currentTree;
-const hasServerRender = !! contentNode.firstElementChild;
 if (hasServerRender) {
     rootNode = contentNode.firstElementChild;
     currentTree = domToVdom(rootNode);
@@ -109,7 +110,17 @@ const handlePageState = (contentId, { shouldCache, render }) => {
         )
     );
 
-    return initialRender().then(conditionalNetworkRender);
+    const enhance = () => (
+        render(JSON.parse(document.querySelector('#template-data').text)).then(tree => (
+            updateContent({ source: 'template-data', tree })
+        ))
+    );
+
+    if (hasServerRender) {
+        enhance();
+    } else {
+        initialRender().then(conditionalNetworkRender);
+    }
 };
 
 //

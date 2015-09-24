@@ -1,6 +1,6 @@
 import h from 'virtual-dom/h';
 
-export default ({ body }={}) => (
+export default ({ body, templateData }={}) => (
     Promise.resolve(body).then(resolvedBody => (
         <html>
             <head>
@@ -13,6 +13,9 @@ export default ({ body }={}) => (
                 <div id="js-content">
                     {resolvedBody}
                 </div>
+                <script id='template-data' type='application/json'>
+                    {JSON.stringify(templateData)}
+                </script>
             </body>
         </html>
     ))
