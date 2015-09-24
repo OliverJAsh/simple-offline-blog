@@ -46,10 +46,14 @@ const updateContent = ({ source, tree: newTree }) => {
 // Stale-while-revalidate
 
 // Load patterns:
-// cache - display - network - display - END
-// no cache - network - display - END
+// SW - cache - client render - network - client render - END
+// SW - no cache - no network - END
+// SW - no cache - network - client render - END
+// no SW - network - server render - network - client render
+// no SW - no network - END
 
 // Tests:
+// - Server render, client enhance
 // - Server error
 // - No cache with network
 // - No cache without network
