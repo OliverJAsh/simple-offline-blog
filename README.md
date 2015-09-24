@@ -13,14 +13,19 @@ jspm install
 npm run bundle-js
 ```
 
-## Architecture
-* To begin with, the server renders. A service worker is installed after the
-  first render.
-* Subsequent requests will be proxied by the service worker, which will serve a
-  cached shell for all pages (a wrapper for the content). The shell contains
-  logic for fetching and rendering content.
+## Development workflow
+* When making changes to the shell HTML/JS/CSS, you must bump the version inside
+  the ServiceWorker.
 
-Note that this means browsers without service worker support will just continue
+## Architecture
+* Server renders content, client renders with enhanced content. Both renders
+  share the same template (aka isomorphism or shared rendering).
+* A ServiceWorker is installed on first visit. Subsequent navigation requests
+  will be proxied by the ServiceWorker, which will respond with a cached shell
+  (a wrapper for the content). The shell contains JavaScript which is
+  responsible for fetching and rendering content.
+
+Note that this means browsers without ServiceWorker support will just continue
 to use server side rendering.
 
 ## Fetch and cache rules
@@ -29,3 +34,4 @@ to use server side rendering.
   the cache.
 * Home page content is always cached
 * Article page content is optionally cached
+* The cache for shell and its subresources is versioned
