@@ -1,9 +1,18 @@
 /* eslint-env browser, serviceworker */
 
+var version = 1;
+var staticCacheName = 'static-' + version;
+var contentCacheName = 'content';
+
+var expectedCaches = [
+    staticCacheName,
+    contentCacheName
+];
+
 self.addEventListener('install', function (event) {
     // Cache the shell
     event.waitUntil(
-        caches.open('static').then(function (cache) {
+        caches.open(staticCacheName).then(function (cache) {
             return cache.addAll([
                 '/shell',
                 '/js/main-bundle.js'
@@ -12,18 +21,24 @@ self.addEventListener('install', function (event) {
     );
 });
 
-var getStaleWhileRevalidate = function (request, cache) {
-    return cache.match(request).then(function (response) {
-        var fetchPromise = fetch(request).then(function(networkResponse) {
-            if (networkResponse.status !== 200) {
-                throw new Error('Bad response');
-            }
-            cache.put(request, networkResponse.clone());
-            return networkResponse;
+self.addEventListener('activate', function (event) {
+    var cacheKeysForDeletionPromise = caches.keys().then(function (keys) {
+        return keys.filter(function (key) {
+            return expectedCaches.every(function (i) {
+                return key !== i;
+            });
         });
-        return response || fetchPromise;
     });
-};
+
+    event.waitUntil(
+        cacheKeysForDeletionPromise.then(function (cacheKeysForDeletion) {
+            console.log('Flushing old caches: ' + cacheKeysForDeletion);
+            return Promise.all(cacheKeysForDeletion.map(function (key) {
+                return caches.delete(key);
+            }));
+        })
+    );
+});
 
 self.addEventListener('fetch', function (event) {
     var requestURL = new URL(event.request.url);
@@ -33,11 +48,7 @@ self.addEventListener('fetch', function (event) {
     var homeOrArticlePageRegExp = new RegExp('^/(articles/.+)?$');
     var shouldServeShell = isRootRequest && homeOrArticlePageRegExp.test(requestURL.pathname);
     if (shouldServeShell) {
-        event.respondWith(
-            caches.open('static').then(function (cache) {
-                return getStaleWhileRevalidate('/shell', cache);
-            })
-        );
+        event.respondWith(caches.match('/shell'));
     } else {
         event.respondWith(
             caches.match(event.request).then(function (response) {
