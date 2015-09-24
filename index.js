@@ -26,22 +26,28 @@ app.use('/', express.static(`${__dirname}/public`));
 
 const sortArticlesByDateDesc = a => a.sort((articleA, articleB) => articleA.date < articleB.date);
 
-app.get('/', (req, res) => homeView(sortArticlesByDateDesc(articles)).then(node => (
-    res.send(treeToHTML(node))
-)));
+app.get('/', (req, res, next) => (
+    homeView(sortArticlesByDateDesc(articles))
+        .then(node => res.send(treeToHTML(node)))
+        .catch(next)
+));
 
-app.get('/articles/:articleId', (req, res) => {
+app.get('/articles/:articleId', (req, res, next) => {
     const article = articleIdToArticleMap[req.params.articleId];
     if (article) {
-        articleView(article).then(node => (
-            res.send(treeToHTML(node))
-        ));
+        articleView(article)
+            .then(node => res.send(treeToHTML(node)))
+            .catch(next);
     } else {
-        res.sendStatus(404);
+        next();
     }
 });
 
-app.get('/shell', (req, res) => mainView().then(node => res.send(treeToHTML(node))));
+app.get('/shell', (req, res, next) => (
+    mainView()
+        .then(node => res.send(treeToHTML(node)))
+        .catch(next)
+));
 
 //
 // Serve HTML fragments of content
@@ -50,14 +56,18 @@ app.get('/content/articles', (req, res) => (
     res.send(sortArticlesByDateDesc(articles))
 ));
 
-app.get('/content/articles/:articleId', (req, res) => {
+app.get('/content/articles/:articleId', (req, res, next) => {
     const article = articleIdToArticleMap[req.params.articleId];
     if (article) {
         res.send(article);
     } else {
-        res.sendStatus(404);
+        next();
     }
 });
+
+app.use((req, res) => (
+    res.sendStatus(404)
+));
 
 const server = app.listen(8080, () => {
     const { port } = server.address();
