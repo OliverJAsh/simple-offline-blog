@@ -10,6 +10,7 @@ var expectedCaches = [
 ];
 
 self.addEventListener('install', function (event) {
+    console.log('Install');
     // Cache the shell
     event.waitUntil(
         caches.open(staticCacheName).then(function (cache) {
@@ -22,6 +23,7 @@ self.addEventListener('install', function (event) {
 });
 
 self.addEventListener('activate', function (event) {
+    console.log('Activate');
     var cacheKeysForDeletionPromise = caches.keys().then(function (keys) {
         return keys.filter(function (key) {
             return expectedCaches.every(function (i) {
