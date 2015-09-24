@@ -37,6 +37,7 @@ if (hasServerRender) {
 
 const updateContent = ({ source, tree: newTree }) => {
     console.log(`Render: from ${source}`);
+    console.timeStamp(`Render: from ${source}`);
     const patches = diff(currentTree, newTree);
     rootNode = patch(rootNode, patches);
     currentTree = newTree;
