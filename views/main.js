@@ -13,9 +13,11 @@ export default ({ body, templateData }={}) => (
                 <div id="js-content">
                     {resolvedBody}
                 </div>
-                <script id='template-data' type='application/json'>
-                    {JSON.stringify(templateData)}
-                </script>
+                {templateData ? (
+                    <script id='template-data' type='application/json'>
+                        {JSON.stringify(templateData)}
+                    </script>
+                ) : ''}
             </body>
         </html>
     ))
