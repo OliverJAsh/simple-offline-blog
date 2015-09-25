@@ -1,9 +1,11 @@
 /* eslint-env node */
 
+import http from 'http';
 import express from 'express';
 import compression from 'compression';
 import treeToHTML from 'vdom-to-html';
 
+import errorView from './views/error';
 import homeView from './views/home';
 import postView from './views/post';
 import mainView from './views/main';
@@ -26,13 +28,40 @@ app.use('/', express.static(`${__dirname}/public`));
 
 const sortPostsByDateDesc = a => a.sort((postA, postB) => postA.date < postB.date);
 
-app.get('/', (req, res, next) => (
+//
+// Content API
+//
+var apiRouter = express.Router();
+
+apiRouter.get('/posts', (req, res) => (
+    res.send(sortPostsByDateDesc(posts))
+));
+
+apiRouter.get('/posts/:postId', (req, res, next) => {
+    const post = postIdToPostMap[req.params.postId];
+    if (post) {
+        res.send(post);
+    } else {
+        next();
+    }
+});
+
+apiRouter.use((req, res) => (
+    res.status(404).send({ message: http.STATUS_CODES[404] })
+));
+
+//
+// Site
+//
+var siteRouter = express.Router();
+
+siteRouter.get('/', (req, res, next) => (
     homeView(sortPostsByDateDesc(posts))
         .then(node => res.send(treeToHTML(node)))
         .catch(next)
 ));
 
-app.get('/posts/:postId', (req, res, next) => {
+siteRouter.get('/posts/:postId', (req, res, next) => {
     const post = postIdToPostMap[req.params.postId];
     if (post) {
         postView(post)
@@ -43,31 +72,21 @@ app.get('/posts/:postId', (req, res, next) => {
     }
 });
 
-app.get('/shell', (req, res, next) => (
+siteRouter.get('/shell', (req, res, next) => (
     mainView()
         .then(node => res.send(treeToHTML(node)))
         .catch(next)
 ));
 
-//
-// Serve content as JSON
-//
-app.get('/content/posts', (req, res) => (
-    res.send(sortPostsByDateDesc(posts))
+siteRouter.use((req, res, next) => (
+    errorView({ statusCode: 404, message: http.STATUS_CODES[404] })
+        .then(node => res.status(404).send(treeToHTML(node)))
+        .catch(next)
 ));
 
-app.get('/content/posts/:postId', (req, res, next) => {
-    const post = postIdToPostMap[req.params.postId];
-    if (post) {
-        res.send(post);
-    } else {
-        next();
-    }
-});
-
-app.use((req, res) => (
-    res.sendStatus(404)
-));
+// Order matters
+app.use('/api', apiRouter);
+app.use('/', siteRouter);
 
 const server = app.listen(8080, () => {
     const { port } = server.address();

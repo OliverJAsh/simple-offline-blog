@@ -10,6 +10,7 @@ import patch from 'virtual-dom/patch';
 import createElement from 'virtual-dom/create-element';
 import domToVdom from 'vdom-virtualize';
 
+import errorFragment from 'shared/fragments/error';
 import postsFragment from 'shared/fragments/posts';
 import postFragment from 'shared/fragments/post';
 
@@ -84,9 +85,10 @@ const handlePageState = (contentId, { shouldCache, renderTemplate }) => {
                                 return networkResponse.clone().json()
                                     .then(renderTemplate);
                             } else {
-                                return networkResponse.clone().text().then(text => <p>{text}</p>);
+                                return networkResponse.clone().json()
+                                    .then(errorFragment);
                             }
-                        }, error => <p>{error.message}</p>)
+                        }, error => errorFragment({ message: error.message }))
                         .then(tree => ({ source: 'network', tree }));
                 }
             })
@@ -112,7 +114,11 @@ const handlePageState = (contentId, { shouldCache, renderTemplate }) => {
         if (hasServerRender) {
             // Re-render to enhance
             const templateData = JSON.parse(document.querySelector('#template-data').text);
-            return renderTemplate(templateData).then(tree => updateContent({ source: 'template-data', tree }));
+            // Duck type error page
+            const renderFn = templateData.statusCode && templateData.statusCode !== 200
+                ? errorFragment
+                : renderTemplate;
+            return renderFn(templateData).then(tree => updateContent({ source: 'template-data', tree }));
         } else {
             return initialRender().then(conditionalNetworkRender);
         }
