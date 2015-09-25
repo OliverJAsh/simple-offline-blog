@@ -5,16 +5,16 @@ import compression from 'compression';
 import treeToHTML from 'vdom-to-html';
 
 import homeView from './views/home';
-import articleView from './views/article';
+import postView from './views/post';
 import mainView from './views/main';
 
-const articles = [
+const posts = [
     { id: 'my-first-article', title: 'My First Article', body: '<p>Hello, World!</p>', date: new Date(2015, 0, 1) },
     { id: 'my-second-article', title: 'My Second Article', body: '<p>Goodbye, World!</p>', date: new Date(2015, 0, 2) }
 ];
 
-const articleIdToArticleMap = articles.reduce((accumulator, content) => {
-    accumulator[content.id] = content;
+const postIdToPostMap = posts.reduce((accumulator, post) => {
+    accumulator[post.id] = post;
     return accumulator;
 }, {});
 
@@ -24,18 +24,18 @@ app.use(compression());
 
 app.use('/', express.static(`${__dirname}/public`));
 
-const sortArticlesByDateDesc = a => a.sort((articleA, articleB) => articleA.date < articleB.date);
+const sortPostsByDateDesc = a => a.sort((postA, postB) => postA.date < postB.date);
 
 app.get('/', (req, res, next) => (
-    homeView(sortArticlesByDateDesc(articles))
+    homeView(sortPostsByDateDesc(posts))
         .then(node => res.send(treeToHTML(node)))
         .catch(next)
 ));
 
-app.get('/articles/:articleId', (req, res, next) => {
-    const article = articleIdToArticleMap[req.params.articleId];
-    if (article) {
-        articleView(article)
+app.get('/posts/:postId', (req, res, next) => {
+    const post = postIdToPostMap[req.params.postId];
+    if (post) {
+        postView(post)
             .then(node => res.send(treeToHTML(node)))
             .catch(next);
     } else {
@@ -52,14 +52,14 @@ app.get('/shell', (req, res, next) => (
 //
 // Serve content as JSON
 //
-app.get('/content/articles', (req, res) => (
-    res.send(sortArticlesByDateDesc(articles))
+app.get('/content/posts', (req, res) => (
+    res.send(sortPostsByDateDesc(posts))
 ));
 
-app.get('/content/articles/:articleId', (req, res, next) => {
-    const article = articleIdToArticleMap[req.params.articleId];
-    if (article) {
-        res.send(article);
+app.get('/content/posts/:postId', (req, res, next) => {
+    const post = postIdToPostMap[req.params.postId];
+    if (post) {
+        res.send(post);
     } else {
         next();
     }

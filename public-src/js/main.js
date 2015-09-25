@@ -10,8 +10,8 @@ import patch from 'virtual-dom/patch';
 import createElement from 'virtual-dom/create-element';
 import domToVdom from 'vdom-virtualize';
 
-import articlesFragment from 'shared/fragments/articles';
-import articleFragment from 'shared/fragments/article';
+import postsFragment from 'shared/fragments/posts';
+import postFragment from 'shared/fragments/post';
 
 import { isContentCached, getContentUrl } from 'shared/helpers';
 
@@ -135,22 +135,22 @@ const handlePageState = (contentId, { shouldCache, renderTemplate }) => {
 //
 
 const homeRegExp = /^\/$/;
-const articleRegExp = /^\/articles\/(.*)$/;
+const postRegExp = /^\/posts\/(.*)$/;
 if (homeRegExp.test(location.pathname)) {
-    const contentId = 'articles';
+    const contentId = 'posts';
 
     handlePageState(contentId, {
         shouldCache: true,
-        renderTemplate: articlesFragment
+        renderTemplate: postsFragment
     });
 }
-else if (articleRegExp.test(location.pathname)) {
-    const contentId = 'articles/' + location.pathname.match(articleRegExp)[1];
+else if (postRegExp.test(location.pathname)) {
+    const contentId = 'posts/' + location.pathname.match(postRegExp)[1];
 
     isContentCached(contentId).then(isCached =>
         handlePageState(contentId, {
             shouldCache: isCached,
-            renderTemplate: articleFragment
+            renderTemplate: postFragment
         })
     );
 }

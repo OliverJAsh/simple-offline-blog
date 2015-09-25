@@ -1,7 +1,7 @@
 import h from 'virtual-dom/h';
 import mainView from './main';
-import articlesFragment from '../shared/fragments/articles';
+import postsFragment from '../shared/fragments/posts';
 
-export default (articles) => (
-    mainView({ body: articlesFragment(articles), templateData: articles })
+export default (posts) => (
+    mainView({ body: postsFragment(posts), templateData: posts })
 );

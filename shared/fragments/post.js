@@ -3,8 +3,8 @@ import h from 'virtual-dom/h';
 
 import { isClient, getContentUrl, isContentCached } from '../helpers';
 
-export default (article) => {
-    const contentId = `articles/${article.id}`;
+export default (post) => {
+    const contentId = `posts/${post.id}`;
 
     return isContentCached(contentId).then(isCached => {
         const cacheOption = isClient ? (
@@ -28,10 +28,10 @@ export default (article) => {
             <article>
                 <header>
                     {cacheOption}
-                    <h2><a href={`/${contentId}`}>{article.title}</a></h2>
-                    <p>{new Date(article.date).toDateString()}</p>
+                    <h2><a href={`/${contentId}`}>{post.title}</a></h2>
+                    <p>{new Date(post.date).toDateString()}</p>
                 </header>
-                <div innerHTML={article.body} />
+                <div innerHTML={post.body} />
             </article>
         );
     });

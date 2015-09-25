@@ -45,9 +45,9 @@ self.addEventListener('activate', function (event) {
 self.addEventListener('fetch', function (event) {
     var requestURL = new URL(event.request.url);
 
-    // Serve shell if root request and pathname is / or /articles/:articleId
+    // Serve shell if root request and pathname is / or /posts/:postId
     var isRootRequest = requestURL.origin === location.origin;
-    var homeOrArticlePageRegExp = new RegExp('^/(articles/.+)?$');
+    var homeOrArticlePageRegExp = new RegExp('^/(posts/.+)?$');
     var shouldServeShell = isRootRequest && homeOrArticlePageRegExp.test(requestURL.pathname);
     if (shouldServeShell) {
         event.respondWith(caches.match('/shell'));
