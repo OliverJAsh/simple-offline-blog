@@ -50,7 +50,7 @@ app.get('/shell', (req, res, next) => (
 ));
 
 //
-// Serve HTML fragments of content
+// Serve content as JSON
 //
 app.get('/content/articles', (req, res) => (
     res.send(sortArticlesByDateDesc(articles))
