@@ -98,7 +98,8 @@ const handlePageState = (contentId, { shouldCache, renderTemplate }) => {
     );
 
     const renders = () => {
-        const templateData = JSON.parse(document.querySelector('#template-data').text);
+        const templateDataNode = document.querySelector('#template-data');
+        const templateData = templateDataNode && JSON.parse(templateDataNode.text);
         if (templateData) {
             // Re-render to enhance
             // Duck type error page
