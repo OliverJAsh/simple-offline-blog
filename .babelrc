@@ -1,5 +1,3 @@
 {
-    "plugins": ["babel-plugin-jsx-factory"],
-    // "blacklist": ["react"],
-    "jsxPragma": "h"
+    "jsxPragma": "h2"
 }

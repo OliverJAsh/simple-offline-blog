@@ -1,18 +1,17 @@
 /* eslint-env browser */
 
-import h from 'virtual-dom/h';
+import h2 from 'shared/h2';
 // Until SystemJS supports babel plugins, we have to stub React, because that's
 // what Babel compiles to
 // https://github.com/systemjs/systemjs/issues/779
-window.React = { createElement: (name, attrs, ...children) => h(name, attrs, children) };
+window.React = { createElement: h2 };
 import diff from 'virtual-dom/diff';
 import patch from 'virtual-dom/patch';
-import createElement from 'virtual-dom/create-element';
 import domToVdom from 'vdom-virtualize';
 
-import errorFragment from 'shared/fragments/error';
-import postsFragment from 'shared/fragments/posts';
-import postFragment from 'shared/fragments/post';
+import errorView from 'shared/views/error';
+import homeView from 'shared/views/home';
+import postView from 'shared/views/post';
 
 import { isContentCached, getContentUrl } from 'shared/helpers';
 
@@ -25,16 +24,8 @@ const contentNode = document.querySelector('#js-content');
 
 const hasServerRender = !! contentNode.firstElementChild;
 
-let rootNode;
-let currentTree;
-if (hasServerRender) {
-    rootNode = contentNode.firstElementChild;
-    currentTree = domToVdom(rootNode);
-} else {
-    currentTree = <div>Loading…</div>;
-    rootNode = createElement(currentTree);
-    contentNode.appendChild(rootNode);
-}
+let rootNode = document.querySelector('html');
+let currentTree = domToVdom(rootNode);
 
 const updateContent = ({ source, tree: newTree }) => {
     console.log(`Render: from ${source}`);
@@ -86,9 +77,9 @@ const handlePageState = (contentId, { shouldCache, renderTemplate }) => {
                                     .then(renderTemplate);
                             } else {
                                 return networkResponse.clone().json()
-                                    .then(errorFragment);
+                                    .then(errorView);
                             }
-                        }, error => errorFragment({ message: error.message }))
+                        }, error => errorView({ message: error.message }))
                         .then(tree => ({ source: 'network', tree }));
                 }
             })
@@ -116,7 +107,7 @@ const handlePageState = (contentId, { shouldCache, renderTemplate }) => {
             const templateData = JSON.parse(document.querySelector('#template-data').text);
             // Duck type error page
             const renderFn = templateData.statusCode && templateData.statusCode !== 200
-                ? errorFragment
+                ? errorView
                 : renderTemplate;
             return renderFn(templateData).then(tree => updateContent({ source: 'template-data', tree }));
         } else {
@@ -147,7 +138,7 @@ if (homeRegExp.test(location.pathname)) {
 
     handlePageState(contentId, {
         shouldCache: true,
-        renderTemplate: postsFragment
+        renderTemplate: homeView
     });
 }
 else if (postRegExp.test(location.pathname)) {
@@ -156,7 +147,7 @@ else if (postRegExp.test(location.pathname)) {
     isContentCached(contentId).then(isCached =>
         handlePageState(contentId, {
             shouldCache: isCached,
-            renderTemplate: postFragment
+            renderTemplate: postView
         })
     );
 }

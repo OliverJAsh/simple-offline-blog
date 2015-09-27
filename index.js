@@ -5,10 +5,10 @@ import express from 'express';
 import compression from 'compression';
 import treeToHTML from 'vdom-to-html';
 
-import errorView from './views/error';
-import homeView from './views/home';
-import postView from './views/post';
-import mainView from './views/main';
+import errorView from './shared/views/error';
+import homeView from './shared/views/home';
+import postView from './shared/views/post';
+import mainView from './shared/views/main';
 
 const posts = [
     { id: 'my-first-article', title: 'My First Article', body: '<p>Hello, World!</p>', date: new Date(2015, 0, 1) },

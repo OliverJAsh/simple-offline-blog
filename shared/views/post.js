@@ -1,9 +1,9 @@
 /* eslint-env browser */
-import h from 'virtual-dom/h';
-
+import h2 from '../h2';
+import mainView from './main';
 import { isClient, getContentUrl, isContentCached } from '../helpers';
 
-export default (post) => {
+const postFragment = (post) => {
     const contentId = `posts/${post.id}`;
 
     return isContentCached(contentId).then(isCached => {
@@ -36,3 +36,8 @@ export default (post) => {
         );
     });
 };
+
+
+export default (post) => (
+    mainView({ title: post.title, body: postFragment(post), templateData: post })
+);

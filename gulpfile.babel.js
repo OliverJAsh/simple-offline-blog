@@ -39,6 +39,7 @@ gulp.task('build', () => build());
 
 gulp.task('watch', ['build'], () => {
     const baseURL = new jspm.Builder().loader.baseURL.replace('file://', '');
+    // TODO: What about shared?
     return watch(`${baseURL}/**/*.js`, (vinyl) => {
         // TODO: Map to module ID. How?
         const moduleId = path.relative(baseURL, vinyl.path);

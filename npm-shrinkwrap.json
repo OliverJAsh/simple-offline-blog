@@ -1000,18 +1000,6 @@
         }
       }
     },
-    "babel-plugin-jsx-factory": {
-      "version": "1.0.1",
-      "from": "babel-plugin-jsx-factory@*",
-      "resolved": "https://registry.npmjs.org/babel-plugin-jsx-factory/-/babel-plugin-jsx-factory-1.0.1.tgz",
-      "dependencies": {
-        "defined": {
-          "version": "1.0.0",
-          "from": "defined@>=1.0.0 <2.0.0",
-          "resolved": "https://registry.npmjs.org/defined/-/defined-1.0.0.tgz"
-        }
-      }
-    },
     "compression": {
       "version": "1.5.2",
       "from": "compression@*",

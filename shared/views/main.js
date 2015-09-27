@@ -1,10 +1,10 @@
-import h from 'virtual-dom/h';
+import h2 from '../h2';
 
-export default ({ body, templateData }={}) => (
+export default ({ title, body, templateData }={}) => (
     Promise.resolve(body).then(resolvedBody => (
         <html>
             <head>
-                <title>Blog</title>
+                <title>{title ? `${title} – ` : ''}Blog</title>
                 <meta name='viewport' content='width=device-width' />
                 <script defer src='/js/main-bundle.js'></script>
             </head>

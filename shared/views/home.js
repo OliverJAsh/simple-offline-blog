@@ -1,9 +1,8 @@
-/* eslint-env browser */
-import h from 'virtual-dom/h';
-
+import h2 from '../h2';
+import mainView from './main';
 import { isContentCached } from '../helpers';
 
-export default (posts) => {
+const postsFragment = (posts) => {
     const articleLINodesPromise = Promise.all(posts.map((post) => {
         const contentId = `posts/${post.id}`;
         return isContentCached(contentId).then(isCached => (
@@ -19,3 +18,7 @@ export default (posts) => {
         <ul>{articleLINodes}</ul>
     ));
 };
+
+export default (posts) => (
+    mainView({ body: postsFragment(posts), templateData: posts })
+);
