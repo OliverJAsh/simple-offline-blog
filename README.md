@@ -10,12 +10,16 @@ A simple offline blog, using ServiceWorker.
 npm install
 npm start
 jspm install
-npm run bundle-js
+npm run build
 ```
 
 ## Development workflow
-* When making changes to the shell HTML/JS/CSS, you must bump the version inside
-  the ServiceWorker.
+```
+npm run watch
+```
+
+When making changes to the shell HTML/JS/CSS, you must bump the version inside
+the ServiceWorker.
 
 ## Architecture
 * Server renders content, client renders with enhanced content. Both renders
