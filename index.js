@@ -24,6 +24,7 @@ const app = express();
 
 app.use(compression());
 
+// TODO: Long cache expiry for browsers without SW
 app.use('/', express.static(`${__dirname}/public`));
 
 const sortPostsByDateDesc = a => a.sort((postA, postB) => postA.date < postB.date);
