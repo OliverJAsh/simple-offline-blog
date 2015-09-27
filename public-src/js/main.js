@@ -20,10 +20,6 @@ navigator.serviceWorker.register('/service-worker.js')
         console.log('Service worker registered');
     });
 
-const contentNode = document.querySelector('#js-content');
-
-const hasServerRender = !! contentNode.firstElementChild;
-
 let rootNode = document.querySelector('html');
 let currentTree = domToVdom(rootNode);
 
@@ -102,9 +98,9 @@ const handlePageState = (contentId, { shouldCache, renderTemplate }) => {
     );
 
     const renders = () => {
-        if (hasServerRender) {
+        const templateData = JSON.parse(document.querySelector('#template-data').text);
+        if (templateData) {
             // Re-render to enhance
-            const templateData = JSON.parse(document.querySelector('#template-data').text);
             // Duck type error page
             const renderFn = templateData.statusCode && templateData.statusCode !== 200
                 ? errorView

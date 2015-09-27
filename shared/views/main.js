@@ -10,9 +10,7 @@ export default ({ title, body, templateData }={}) => (
             </head>
             <body>
                 <h1><a href='/'>Blog</a></h1>
-                <div id="js-content">
-                    {resolvedBody}
-                </div>
+                {resolvedBody}
                 {templateData ? (
                     <script id='template-data' type='application/json'>
                         {JSON.stringify(templateData)}
