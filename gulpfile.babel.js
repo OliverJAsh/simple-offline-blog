@@ -9,7 +9,7 @@ let builderCache = {};
 const removeFromTrace = (moduleId) => delete builderCache.trace[moduleId];
 
 const moduleExpression = 'main';
-const outputDir = `${__dirname}/public`
+const outputDir = `${__dirname}/public`;
 const writeFileName = `${outputDir}/js/main-bundle.js`;
 
 // Incremental builds
