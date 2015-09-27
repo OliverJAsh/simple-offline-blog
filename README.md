@@ -9,8 +9,6 @@ A simple offline blog, using ServiceWorker.
 ```
 npm install
 npm start
-jspm install
-npm run build
 ```
 
 ## Development workflow
