@@ -89,7 +89,7 @@ siteRouter.use((req, res, next) => (
 app.use('/api', apiRouter);
 app.use('/', siteRouter);
 
-const server = app.listen(8080, () => {
+const server = app.listen(process.env.PORT || 8080, () => {
     const { port } = server.address();
 
     console.log(`Server running on port ${port}`);
