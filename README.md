@@ -18,9 +18,6 @@ npm run build
 npm run watch
 ```
 
-When making changes to the shell HTML/JS/CSS, you must bump the version inside
-the ServiceWorker.
-
 ## Architecture
 * Server renders content, client renders with enhanced content. Both renders
   share the same template (aka isomorphism or shared rendering).
