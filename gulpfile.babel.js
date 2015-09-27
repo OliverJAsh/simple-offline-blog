@@ -12,6 +12,7 @@ const moduleExpression = 'main';
 const outputDir = `${__dirname}/public`
 const writeFileName = `${outputDir}/js/main-bundle.js`;
 
+// Incremental builds
 const build = (changedModuleId) => {
     const builder = new jspm.Builder();
 
