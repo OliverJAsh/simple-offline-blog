@@ -9,7 +9,8 @@ let builderCache = {};
 const removeFromTrace = (moduleId) => delete builderCache.trace[moduleId];
 
 const moduleExpression = 'main';
-const writeFileName = `${__dirname}/public/js/main-bundle.js`;
+const outputDir = `${__dirname}/public`
+const writeFileName = `${outputDir}/js/main-bundle.js`;
 
 const build = (changedModuleId) => {
     const builder = new jspm.Builder();
@@ -39,10 +40,17 @@ gulp.task('build', () => build());
 
 gulp.task('watch', ['build'], () => {
     const baseURL = new jspm.Builder().loader.baseURL.replace('file://', '');
-    // TODO: What about shared?
-    return watch(`${baseURL}/**/*.js`, (vinyl) => {
+    return watch([
+        `${baseURL}/**/*.js`,
+        // Not all files live in the jspm base
+        `${__dirname}/**/*.js`,
+        `!${outputDir}/**/*.js`
+    ], (vinyl) => {
         // TODO: Map to module ID. How?
-        const moduleId = path.relative(baseURL, vinyl.path);
+        const { path: filePath } = vinyl;
+        const moduleId = filePath.startsWith(baseURL)
+            ? path.relative(baseURL, filePath)
+            : path.relative(__dirname, filePath);
         console.log(`changed: ${moduleId}`);
         build(moduleId);
     });
