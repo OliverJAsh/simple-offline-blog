@@ -16,6 +16,11 @@ npm start
 npm run watch
 ```
 
+### Lint
+```
+./node_modules/.bin/eslint .
+```
+
 ## Architecture
 * Server renders content, client renders with enhanced content. Both renders
   share the same template (aka isomorphism or shared rendering).
