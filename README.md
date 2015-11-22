@@ -15,6 +15,8 @@ npm start
 
 ## Development workflow
 ```
+npm run build
+# OR
 npm run watch
 ```
 
