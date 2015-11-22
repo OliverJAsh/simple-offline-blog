@@ -15,6 +15,8 @@ npm start
 * Server serves a shell. That is, a wrapper for the content.
 * Shell contains logic for fetching and rendering content
 
+There is also a branch with shared rendering. See https://github.com/OliverJAsh/simple-offline-blog/pull/1.
+
 ## Fetch and cache rules
 * Serve from cache or else network. When serving from cache, fetch the newest
   content from the network to update the content on screen and then revalidate
