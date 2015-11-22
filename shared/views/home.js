@@ -1,4 +1,4 @@
-import h2 from '../h2';
+import h from '../h';
 import mainView from './main';
 import { isContentCached } from '../helpers';
 

@@ -1,4 +1,4 @@
-import h2 from '../h2';
+import h from '../h';
 
 export default ({ title, body, templateData }={}) => (
     Promise.resolve(body).then(resolvedBody => (

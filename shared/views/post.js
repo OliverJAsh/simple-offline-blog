@@ -1,5 +1,5 @@
 /* eslint-env browser */
-import h2 from '../h2';
+import h from '../h';
 import mainView from './main';
 import { isClient, getContentUrl, isContentCached } from '../helpers';
 
