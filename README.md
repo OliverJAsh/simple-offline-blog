@@ -8,6 +8,8 @@ A simple offline blog, using ServiceWorker.
 
 ```
 npm install
+./node_modules/.bin/jspm install
+npm run build
 npm start
 ```
 

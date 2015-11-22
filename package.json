@@ -5,8 +5,7 @@
     "start": "./node_modules/.bin/babel-node .",
     "build": "./node_modules/.bin/gulp build",
     "watch": "./node_modules/.bin/gulp watch",
-    "lint": "./node_modules/.bin/eslint .",
-    "postinstall": "./node_modules/.bin/jspm install && npm run build"
+    "lint": "./node_modules/.bin/eslint ."
   },
   "dependencies": {
     "babel-cli": "^6.2.0",
