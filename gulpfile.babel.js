@@ -12,7 +12,8 @@ const moduleExpression = 'main';
 const outputDir = `${__dirname}/public`;
 const writeFileName = `${outputDir}/js/main-bundle.js`;
 
-// Incremental builds
+// Run function again for incremental builds
+// Equivalent: ./node_modules/.bin/jspm --minify bundle-sfx main public/js/main-bundle.js
 const build = (changedModuleId) => {
     const builder = new jspm.Builder();
 
