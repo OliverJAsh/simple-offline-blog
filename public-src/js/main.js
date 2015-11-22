@@ -1,10 +1,5 @@
 /* eslint-env browser */
 
-import h from 'shared/h';
-// Until SystemJS supports babel plugins, we have to stub React, because that's
-// what Babel compiles to
-// https://github.com/systemjs/systemjs/issues/779
-window.React = { createElement: h };
 import diff from 'virtual-dom/diff';
 import patch from 'virtual-dom/patch';
 import domToVdom from 'vdom-virtualize';

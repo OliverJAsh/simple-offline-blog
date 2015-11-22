@@ -1,22 +1,28 @@
-import h from '../h';
+import h from 'virtual-dom/h';
+import exp from '../exp';
 
 export default ({ title, body, templateData }={}) => (
     Promise.resolve(body).then(resolvedBody => (
-        <html>
-            <head>
-                <title>{title ? `${title} – ` : ''}Blog</title>
-                <meta name='viewport' content='width=device-width' />
-                <script defer src='/js/main-bundle.js'></script>
-            </head>
-            <body>
-                <h1><a href='/'>Blog</a></h1>
-                {resolvedBody}
-                {templateData ? (
-                    <script id='template-data' type='application/json'>
-                        {JSON.stringify(templateData)}
-                    </script>
-                ) : ''}
-            </body>
-        </html>
+        h('html', [
+            h('head', [
+                h('title', [
+                    title ? title + ' – ' : '',
+                    'Blog'
+                ]),
+                h('meta', { name: 'viewport', content: 'width=device-width' }),
+                h('script', { defer: true, src: '/js/main-bundle.js' })
+            ]),
+            h('body', [
+                h('h1',
+                    h('a', { href: '/' }, 'Blog')
+                ),
+                resolvedBody,
+                exp(templateData) && h(
+                    'script',
+                    { id: 'template-data', type: 'application/json' },
+                    JSON.stringify(templateData)
+                )
+            ])
+        ])
     ))
 );

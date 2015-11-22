@@ -1,15 +1,16 @@
 /* eslint-env browser */
-import h from '../h';
+import h from 'virtual-dom/h';
 import mainView from './main';
+import exp from '../exp';
 import { isClient, getContentUrl, isContentCached } from '../helpers';
 
 const postFragment = (post) => {
     const contentId = `posts/${post.id}`;
 
     return isContentCached(contentId).then(isCached => {
-        const cacheOption = isClient ? (
-            <label>
-                <input type='checkbox' checked={isCached} onchange={(event) => (
+        const cacheOption = exp(isClient) && (
+            h('label', [
+                h('input', { type: 'checkbox', checked: isCached, onchange: (event) => (
                     caches.open('content').then((cache) => {
                         const shouldCache = event.target.checked;
                         if (shouldCache) {
@@ -20,20 +21,21 @@ const postFragment = (post) => {
                             cache.delete(getContentUrl(contentId));
                         }
                     })
-                )} /> Read offline
-            </label>
-        ) : undefined;
-
-        return (
-            <article>
-                <header>
-                    {cacheOption}
-                    <h2><a href={`/${contentId}`}>{post.title}</a></h2>
-                    <p>{new Date(post.date).toDateString()}</p>
-                </header>
-                <div innerHTML={post.body} />
-            </article>
+                ) }),
+                'Read offline'
+            ])
         );
+
+        return h('article', [
+            h('header', [
+                cacheOption,
+                h('h2',
+                    h('a', { href: '/' + contentId }, post.title)
+                ),
+                h('p', new Date(post.date).toDateString())
+            ]),
+            h('div', { innerHTML: post.body })
+        ]);
     });
 };
 
