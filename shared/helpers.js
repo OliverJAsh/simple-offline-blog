@@ -1,4 +1,3 @@
-/* eslint-env browser */
 export const getContentUrl = (contentId) => `/api/${contentId}`;
 
 export const isClient = typeof window !== 'undefined';

@@ -1,4 +1,3 @@
-/* eslint-env node */
 import gulp from 'gulp';
 import watch from 'gulp-watch';
 import jspm from 'jspm';

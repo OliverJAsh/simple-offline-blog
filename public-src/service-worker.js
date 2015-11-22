@@ -1,4 +1,4 @@
-/* eslint-env browser, serviceworker */
+/* eslint-env serviceworker */
 
 const version = 1;
 const staticCacheName = 'static-' + version;

@@ -1,4 +1,3 @@
-/* eslint-env browser */
 import h from 'virtual-dom/h';
 import mainView from './main';
 import exp from '../exp';

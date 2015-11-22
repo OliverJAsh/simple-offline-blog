@@ -1,5 +1,3 @@
-/* eslint-env browser */
-
 import diff from 'virtual-dom/diff';
 import patch from 'virtual-dom/patch';
 import domToVdom from 'vdom-virtualize';
