@@ -1969,11 +1969,11 @@
             "async": {
               "version": "1.5.0"
             },
-            "aws-sign2": {
-              "version": "0.6.0"
-            },
             "balanced-match": {
               "version": "0.2.1"
+            },
+            "aws-sign2": {
+              "version": "0.6.0"
             },
             "block-stream": {
               "version": "0.0.8"
@@ -1996,11 +1996,11 @@
             "commander": {
               "version": "2.9.0"
             },
-            "concat-map": {
-              "version": "0.0.1"
-            },
             "core-util-is": {
               "version": "1.0.1"
+            },
+            "concat-map": {
+              "version": "0.0.1"
             },
             "cryptiles": {
               "version": "2.0.5"
@@ -2029,11 +2029,11 @@
             "forever-agent": {
               "version": "0.6.1"
             },
-            "form-data": {
-              "version": "1.0.0-rc3"
-            },
             "fstream": {
               "version": "1.0.8"
+            },
+            "form-data": {
+              "version": "1.0.0-rc3"
             },
             "gauge": {
               "version": "1.2.2"
@@ -2095,16 +2095,16 @@
             "lodash._basetostring": {
               "version": "3.0.1"
             },
-            "lodash._createpadding": {
-              "version": "3.6.1"
-            },
             "lodash.pad": {
               "version": "3.1.1"
             },
-            "lodash.padright": {
-              "version": "3.1.1"
+            "lodash._createpadding": {
+              "version": "3.6.1"
             },
             "lodash.padleft": {
+              "version": "3.1.1"
+            },
+            "lodash.padright": {
               "version": "3.1.1"
             },
             "lodash.repeat": {
@@ -2122,11 +2122,11 @@
             "mkdirp": {
               "version": "0.5.1"
             },
-            "npmlog": {
-              "version": "1.2.1"
-            },
             "node-uuid": {
               "version": "1.4.3"
+            },
+            "npmlog": {
+              "version": "1.2.1"
             },
             "oauth-sign": {
               "version": "0.8.0"
@@ -2134,23 +2134,23 @@
             "once": {
               "version": "1.1.1"
             },
+            "path-is-absolute": {
+              "version": "1.0.0"
+            },
             "pinkie": {
               "version": "1.0.0"
             },
-            "path-is-absolute": {
+            "pinkie-promise": {
               "version": "1.0.0"
             },
             "qs": {
               "version": "5.2.0"
             },
-            "pinkie-promise": {
-              "version": "1.0.0"
+            "request": {
+              "version": "2.65.0"
             },
             "readable-stream": {
               "version": "1.1.13"
-            },
-            "request": {
-              "version": "2.65.0"
             },
             "semver": {
               "version": "5.0.3"
@@ -2176,11 +2176,11 @@
             "tar": {
               "version": "2.2.1"
             },
-            "tough-cookie": {
-              "version": "2.2.0"
-            },
             "tunnel-agent": {
               "version": "0.4.1"
+            },
+            "tough-cookie": {
+              "version": "2.2.0"
             },
             "uid-number": {
               "version": "0.0.3"
@@ -2794,11 +2794,11 @@
         "lodash._basefor": {
           "version": "3.0.2"
         },
-        "lodash.keysin": {
-          "version": "3.0.8"
-        },
         "lodash._bindcallback": {
           "version": "3.0.1"
+        },
+        "lodash.keysin": {
+          "version": "3.0.8"
         },
         "wordwrap": {
           "version": "0.0.2"
