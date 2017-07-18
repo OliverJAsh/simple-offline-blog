@@ -2,10 +2,41 @@
   "name": "simple-offline-blog",
   "private": true,
   "scripts": {
-    "start": "./node_modules/.bin/babel-node ."
+    "start": "./node_modules/.bin/babel-node .",
+    "build": "./node_modules/.bin/gulp build",
+    "watch": "./node_modules/.bin/gulp watch",
+    "lint": "./node_modules/.bin/eslint ."
   },
   "dependencies": {
-    "babel": "^5.8.23",
-    "express": "^4.13.3"
+    "babel-cli": "^6.2.0",
+    "babel-preset-es2015": "^6.1.18",
+    "compression": "^1.5.2",
+    "eslint": "^1.10.1",
+    "eslint-plugin-html": "^1.1.0",
+    "express": "^4.13.3",
+    "gulp": "^3.9.0",
+    "gulp-babel": "^6.1.0",
+    "gulp-jspm-build": "0.0.12",
+    "gulp-sourcemaps": "^1.6.0",
+    "gulp-uglify": "^1.5.1",
+    "gulp-watch": "^4.3.5",
+    "jspm": "^0.16.10",
+    "sorted-object": "^1.0.0",
+    "vdom-to-html": "^2.1.1",
+    "virtual-dom": "^2.1.1"
+  },
+  "jspm": {
+    "directories": {
+      "baseURL": "public-src/js"
+    },
+    "dependencies": {
+      "vdom-virtualize": "npm:vdom-virtualize@^0.0.13",
+      "virtual-dom": "npm:virtual-dom@^2.1.1"
+    },
+    "devDependencies": {
+      "babel": "npm:babel-core@^5.8.24",
+      "babel-runtime": "npm:babel-runtime@^5.8.24",
+      "core-js": "npm:core-js@^1.1.4"
+    }
   }
 }
